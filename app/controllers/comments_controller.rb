@@ -4,6 +4,8 @@ class CommentsController < ApplicationController
 
   # POST /posts/:post_id/comments
   def create
+    return render json: { errors: 'Unauthorized' }, status: :unauthorized unless @current_user
+
     @comment = @post.comments.build(comment_params.merge(user: @current_user))
     if @comment.save
       render json: @comment, status: :created
@@ -14,6 +16,8 @@ class CommentsController < ApplicationController
 
   # PUT /posts/:post_id/comments/:id
   def update
+    return render json: { errors: 'Unauthorized' }, status: :unauthorized unless @current_user
+
     if @comment.user == @current_user
       if @comment.update(comment_params)
         render json: @comment
@@ -27,6 +31,8 @@ class CommentsController < ApplicationController
 
   # DELETE /posts/:post_id/comments/:id
   def destroy
+    return render json: { errors: 'Unauthorized' }, status: :unauthorized unless @current_user
+
     if @comment.user == @current_user
       @comment.destroy
       head :no_content

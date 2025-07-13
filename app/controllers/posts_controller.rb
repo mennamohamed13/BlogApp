@@ -1,4 +1,5 @@
 class PostsController < ApplicationController
+  before_action :authorize_request
   before_action :set_post, only: [:show, :update, :destroy]
 
   # GET /posts
@@ -13,7 +14,17 @@ class PostsController < ApplicationController
   end
 
   # POST /posts
+  # def create
+  #   @post = @current_user.posts.build(post_params)
+  #   if @post.save
+  #     render json: @post, status: :created
+  #   else
+  #     render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
+  #   end
+  # end
   def create
+    return render json: { errors: 'Unauthorized' }, status: :unauthorized unless @current_user
+
     @post = @current_user.posts.build(post_params)
     if @post.save
       render json: @post, status: :created
@@ -21,6 +32,7 @@ class PostsController < ApplicationController
       render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
 
   # PUT /posts/:id
   def update
@@ -31,7 +43,7 @@ class PostsController < ApplicationController
         render json: { errors: @post.errors.full_messages }, status: :unprocessable_entity
       end
     else
-      render json: { errors: 'Not authorized to update this post' }, status: :unauthorized
+      render json: { errors: 'Not authorized to update this post' }, status: :forbidden
     end
   end
 
@@ -41,7 +53,7 @@ class PostsController < ApplicationController
       @post.destroy
       head :no_content
     else
-      render json: { errors: 'Not authorized to delete this post' }, status: :unauthorized
+      render json: { errors: 'Not authorized to delete this post' }, status: :forbidden
     end
   end
 
